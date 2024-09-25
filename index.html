@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Chain Memory Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <audio id="backgroundMusic" loop>
+        <source src="Future-Technology(chosic.com).mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <div id="container">
+        <!-- Initial Game Name Screen -->
+        <div id="initialScreen">
+            <h1>Word Chain Memory Game</h1>
+        </div>
+
+        <!-- Round Display -->
+        <div id="roundDisplay" style="display: none;">
+            <h2>Round <span id="roundNumber">1</span></h2>
+        </div>
+
+        <!-- Player Selection -->
+        <div id="playerSelection" style="display: none;">
+            <h2>Select Number of Players</h2>
+            <input type="number" id="numPlayers" min="2" max="4" placeholder="Enter number of players (2-4)">
+            <button onclick="setPlayerCount()">Start Game</button>
+        </div>
+
+        <!-- Category Selection -->
+        <div id="categorySelection" style="display: none;">
+            <h2>Select Categories</h2>
+            <input type="text" id="newCategory" placeholder="Enter category name">
+            <button onclick="addCategory()">Add Category</button>
+            <button id="startGameButton" onclick="startGame()" style="display: none;">Start Game</button>
+            <ul id="categoryList"></ul>
+        </div>
+
+        <!-- Game Section -->
+        <div id="game" style="display: none;">
+            <div id="playerBoxes"></div>
+            <div id="inputFields"></div>
+            <div id="wordBlocks"></div>
+            <div id="lastWordDisplay"></div>
+            <div id="timer">Time Left: <span id="timeLeft">0</span>s</div>
+            <div id="status"></div>
+            <button id="restartButton" onclick="restartGame()" style="display: none;">Restart Game</button>
+            <button onclick="startRecognition()">Speak</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

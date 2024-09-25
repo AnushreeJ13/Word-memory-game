@@ -1,0 +1,111 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #222;
+    color: #ffffff;
+    text-align: center;
+}
+#initialScreen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh; /* Full viewport height */
+    background-color: #222;
+    color: #d9feef;
+}
+
+#initialScreen h1 {
+    font-size: 48px; /* Larger font for game name */
+}
+#container {
+    margin: 0 auto;
+    padding: 20px;
+    border: 2px solid #4CAF50;
+    border-radius: 10px;
+    width: 80%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+h1 {
+    color: #d9feef;
+    font-size: 36px;
+}
+
+h2 {
+    font-size: 24px;
+    color: #4CAF50;
+}
+
+input[type="text"], input[type="number"] {
+    padding: 10px;
+    margin: 10px 0;
+    width: 60%; 
+    border: none;
+    border-radius: 5px;
+    background-color: #333;
+    color: #ffffff;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+.word-block {
+    background-color: #3F8A3F;
+    color: white;
+    border: 1px solid #FFD700;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 5px;
+    display: inline-block;
+}
+
+#playerBoxes {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0;
+}
+
+.player-box {
+    background-color: #4CAF50;
+    color: white;
+    border: 2px solid #FFD700;
+    padding: 20px;
+    border-radius: 5px;
+    margin: 10px;
+    width: 100px;
+    text-align: center;
+}
+
+.highlight {
+    border: 2px solid #FF5733; /* Highlight color */
+}
+
+#timer {
+    font-size: 20px;
+    color: #569c78;
+}
+
+#status {
+    font-size: 20px;
+    color: #235837;
+    margin: 20px 0;
+}
+
+#restartButton {
+    background-color: #12360b;
+}
+
+#restartButton:hover {
+    background-color: #a9e619;
+}
