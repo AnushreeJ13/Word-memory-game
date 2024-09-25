@@ -131,16 +131,22 @@ function handleElimination(message) {
 function displayInitialInput() {
     const inputDiv = document.getElementById('inputFields');
     inputDiv.innerHTML = "";
+
+    // Create input field for word entry
     const inputField = document.createElement('input');
     inputField.type = 'text';
     inputField.placeholder = 'Enter your word';
-    inputField.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            handleWordInput(inputField.value);
-            inputField.value = ""; // Clear the input
-        }
-    });
+    
+    // Create submit button
+    const submitButton = document.createElement('button');
+    submitButton.textContent = 'Submit';
+    submitButton.onclick = () => {
+        handleWordInput(inputField.value);
+        inputField.value = ""; // Clear the input
+    };
+    
     inputDiv.appendChild(inputField);
+    inputDiv.appendChild(submitButton);
     inputField.focus();
 }
 
