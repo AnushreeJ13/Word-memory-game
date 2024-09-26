@@ -4,35 +4,68 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Word Chain Memory Game</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="initialScreen" style="display: none; justify-content: center; align-items: center; flex-direction: column;">
-        <h1>WORD CHAIN MEMORY GAME</h1>
-    </div>
-    <div id="playerSelection" style="display: flex; flex-direction: column; align-items: center;">
-        <input type="number" id="numPlayers" min="2" max="4" placeholder="Number of Players">
-        <button onclick="setPlayerCount()">Set Players</button>
-    </div>
-    <div id="categorySelection" style="display: none;">
-        <input type="text" id="newCategory" placeholder="Add Category">
-        <button onclick="addCategory()">Add</button>
-        <ul id="categoryList"></ul>
-        <button id="startGameButton" onclick="startGame()" style="display: none;">Start Game</button>
-    </div>
-    <div id="game" style="display: none;">
-        <div id="roundDisplay" style="display: none;">
-            Round: <span id="roundNumber">1</span>
-            <div id="timeLeft">10</div>
+    <audio id="backgroundMusic" loop>
+        <source src="Future-Technology(chosic.com).mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <div id="container">
+        <!-- Initial Game Name Screen -->
+        <div id="initialScreen">
+            <h1>Word Memory Game</h1>
         </div>
-        <div id="lastWordDisplay" style="display: none;"></div>
-        <div id="inputFields"></div>
-        <div id="playerBoxes"></div>
-        <button onclick="startRecognition()">Speak Input</button>
-        <div id="status"></div>
-        <button id="restartButton" style="display: none;" onclick="restartGame()">Restart Game</button>
+
+        <!-- Round Display -->
+        <div id="roundDisplay" style="display: none;">
+            <h2>Round <span id="roundNumber">1</span></h2>
+        </div>
+
+        <!-- Player Selection -->
+        <div id="playerSelection" style="display: none;">
+            <h2>Select Number of Players</h2>
+            <input type="number" id="numPlayers" min="2" max="4" placeholder="Enter number of players (2-4)">
+            <button onclick="setPlayerCount()">Start Game</button>
+        </div>
+
+        <!-- Category Selection -->
+        <div id="categorySelection" style="display: none;">
+            <h2>Select Categories</h2>
+            <input type="text" id="newCategory" placeholder="Enter category name">
+            <button onclick="addCategory()">Add Category</button>
+            <button id="startGameButton" onclick="startGame()" style="display: none;">Start Game</button>
+            <div id="categoryList" class="category-list"></div>
+        </div>
+        
+        <!-- Game Section -->
+        <div id="game" style="display:none;">
+            <h1 style="font-family: 'Arial', sans-serif; font-size: 36px;">Word Chain Memory Game</h1>
+            <div id="status" style="font-family: 'Arial', sans-serif; font-size: 24px;"></div>
+            <div id="lastWordDisplay" style="font-family: 'Arial', sans-serif; font-size: 24px;"></div>
+            <div id="inputFields" style="display: none;"></div>
+            <div id="timer" style="font-family: 'Arial', sans-serif; font-size: 24px;">
+                Time Left: <span id="timeLeft">10</span> seconds
+            </div>
+            <div id="dontRepeat" style="font-family: 'Arial', sans-serif; font-size: 28px; color: red;">
+                Don't repeat!!!
+            </div>
+            <div id="playerBoxes"></div>
+            <div id="winner" style="display:none; font-family: 'Arial', sans-serif; font-size: 30px;"></div>
+            <div id="inputMethodSelection">
+                <h3>Choose Input Method:</h3>
+                <button onclick="startRecognition()">Speech</button>
+                <button onclick="displayInitialInput()">Text</button>
+            </div>
+        </div>
     </div>
-    <audio id="backgroundMusic" src="Future-Technology(chosic.com).mp3" loop></audio>
+    <div id="status"></div>
+<div id="lastWordDisplay"></div>
+<div id="winner" style="display: none; animation: fadeIn 1s;">
+    <h1>Player X wins!</h1>
+</div>
+<button id="restartButton" onclick="restartGame()" style="display:none;">Restart Game</button>
     <script src="script.js"></script>
 </body>
 </html>
