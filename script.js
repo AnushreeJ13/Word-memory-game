@@ -7,6 +7,7 @@ let timeLimit = 10;
 let timer;
 let categories = [];
 let isGameActive = false;
+let lastWord = "";
 let backgroundMusic = document.getElementById('backgroundMusic');
 
 // Start background music
@@ -33,7 +34,6 @@ function setPlayerCount() {
     players = Array.from({ length: numPlayers }, (_, i) => `Player ${i + 1}`);
     document.getElementById('playerSelection').style.display = 'none';
     document.getElementById('categorySelection').style.display = 'block';
-    document.getElementById('startGameButton').style.display = 'inline';
 }
 
 function addCategory() {
@@ -42,16 +42,22 @@ function addCategory() {
         categories.push(category);
         document.getElementById('newCategory').value = "";
         updateCategoryList();
+        document.getElementById('startGameButton').style.display = 'inline';
     }
 }
 
 function updateCategoryList() {
-    const categoryList = document.getElementById('categoryList');
-    categoryList.innerHTML = "";
-    categories.forEach(cat => {
-        const li = document.createElement('li');
-        li.textContent = cat;
-        categoryList.appendChild(li);
+    const categoryListDiv = document.getElementById('categoryList');
+    categoryListDiv.innerHTML = '';
+    categories.forEach((category) => {
+        const categoryItem = document.createElement('div');
+        categoryItem.textContent = category;
+        categoryItem.onclick = () => {
+            selectedCategory = category; // Store selected category
+            categoryListDiv.querySelectorAll('div').forEach(item => item.style.backgroundColor = '#3F8A3F'); // Reset styles
+            categoryItem.style.backgroundColor = '#FFD700'; // Highlight selected category
+        };
+        categoryListDiv.appendChild(categoryItem);
     });
 }
 
@@ -73,11 +79,13 @@ function resetGame() {
     currentPlayerIndex = 0;
     round = 1;
     currentWords = [];
-    timeLimit = 10;
+    timeLimit = 10; // Reset time limit to 10 seconds
     isGameActive = true;
+    lastWord = "";
     document.getElementById('timer').style.display = 'none';
     document.getElementById('status').textContent = "";
     document.getElementById('restartButton').style.display = 'none';
+    document.getElementById('playerBoxes').innerHTML = ''; // Clear player boxes
 }
 
 function startRound() {
@@ -90,149 +98,177 @@ function startRound() {
 
 function displayChainForRound() {
     const displayDiv = document.getElementById('lastWordDisplay');
-    displayDiv.textContent = currentWords.join(", ");
-    displayDiv.style.display = "block";
-    setTimeout(() => {
-        displayDiv.style.display = "none";
-        startTimer();
-    }, 3000); // Display chain for 3 seconds
+    displayDiv.textContent = `Last Word: ${lastWord}`;
+    document.getElementById('timer').style.display = 'block';
+    document.getElementById('timeLeft').textContent = timeLimit;
+    startTimer();
 }
 
 function startTimer() {
-    const timeLeftDisplay = document.getElementById('timeLeft');
-    timeLeftDisplay.textContent = timeLimit;
-    document.getElementById('timer').style.display = 'block';
-    
+    clearInterval(timer);
     timer = setInterval(() => {
-        if (timeLimit > 0) {
-            timeLimit--;
-            timeLeftDisplay.textContent = timeLimit;
-        } else {
+        timeLimit--;
+        document.getElementById('timeLeft').textContent = timeLimit;
+        if (timeLimit <= 0) {
             clearInterval(timer);
-            handleElimination(`Player ${currentPlayerIndex + 1} ran out of time!`);
+            handleTimeout();
         }
     }, 1000);
 }
 
-function handleElimination(message) {
-    alert(message);
-    players.splice(currentPlayerIndex, 1);
-    if (players.length === 1) {
-        alert(`${players[0]} is the winner!`);
-        document.getElementById('restartButton').style.display = 'block';
-        isGameActive = false;
+function handleTimeout() {
+    const currentPlayer = players[currentPlayerIndex];
+    document.getElementById('status').textContent = `${currentPlayer} timed out!`;
+    eliminatePlayer(currentPlayer);
+}
+
+function highlightCurrentPlayer() {
+    const playerBoxes = document.getElementById('playerBoxes');
+    playerBoxes.innerHTML = '';
+    players.forEach((player, index) => {
+        const playerBox = document.createElement('div');
+        playerBox.className = 'player-box' + (index === currentPlayerIndex ? ' highlight' : '');
+        playerBox.textContent = player;
+        playerBoxes.appendChild(playerBox);
+    });
+}
+
+function displayInitialInput() {
+    const inputFields = document.getElementById('inputFields');
+    inputFields.innerHTML = '';
+    const inputField = document.createElement('input');
+    inputField.placeholder = "Enter a word...";
+    inputField.onkeypress = (e) => {
+        if (e.key === 'Enter') {
+            handleWordInput(inputField.value);
+            inputField.value = ""; // Clear input after submission
+        }
+    };
+    inputFields.appendChild(inputField);
+}
+
+function handleWordInput(word) {
+    if (!isGameActive) return;
+
+    const currentPlayer = players[currentPlayerIndex];
+
+    // Validate word
+    if (word === "" || (round > 1 && !isWordValid(word))) {
+        document.getElementById('status').textContent = `${currentPlayer} entered an invalid word!`;
+        eliminatePlayer(currentPlayer);
     } else {
-        currentPlayerIndex = currentPlayerIndex % players.length; // Adjust current index
+        lastWord = word;
+        currentWords.push(word);
+        document.getElementById('status').textContent = `${currentPlayer} entered: ${word}`;
+        currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+        round++;
+        timeLimit = 10; // Reset time limit to 10 seconds after each valid input
         highlightCurrentPlayer();
         startRound();
     }
 }
 
-function displayInitialInput() {
-    const inputDiv = document.getElementById('inputFields');
-    inputDiv.innerHTML = "";
-
-    // Create input field for word entry
-    const inputField = document.createElement('input');
-    inputField.type = 'text';
-    inputField.placeholder = 'Enter your word';
-    
-    // Create submit button
-    const submitButton = document.createElement('button');
-    submitButton.textContent = 'Submit';
-    submitButton.onclick = () => {
-        handleWordInput(inputField.value);
-        inputField.value = ""; // Clear the input
-    };
-    
-    inputDiv.appendChild(inputField);
-    inputDiv.appendChild(submitButton);
-    inputField.focus();
+function isWordValid(word) {
+    // Check if the word is unique
+    return !currentWords.includes(word);
 }
 
-function handleWordInput(word) {
-    if (word.trim() === "") return;
-
-    // Check if unique and valid
-    if (!currentWords.includes(word) && isGameActive) {
-        currentWords.push(word);
-        if (currentPlayerIndex === 0) { // First player can enter one word only
-            lastWord = word;
-        } else { // Subsequent players must enter previous words + new word
-            const previousWords = currentWords.slice(0, currentPlayerIndex).join(", ");
-            if (!word.startsWith(previousWords)) {
-                return handleElimination(`${players[currentPlayerIndex]} entered an invalid word!`);
-            }
-            lastWord = word;
-        }
-
-        // Display the chain and handle timer
-        if (currentPlayerIndex < players.length - 1) {
-            currentPlayerIndex++;
-            displayInitialInput(); // Next player's turn
-        } else {
-            round++;
-            document.getElementById('roundNumber').textContent = round;
-            currentPlayerIndex = 0;
-            startRound();
-        }
+function eliminatePlayer(player) {
+    players = players.filter(p => p !== player);
+    if (players.length === 1) {
+        endGame(players[0]); // Pass the remaining player directly
     } else {
-        handleElimination(`${players[currentPlayerIndex]} entered a duplicate word!`);
+        if (currentPlayerIndex >= players.length) {
+            currentPlayerIndex = 0; // Reset to the first player
+        }
+        highlightCurrentPlayer();
+        if (currentWords.length > 0) {
+            lastWord = currentWords[currentWords.length - 1]; // Reset last word to the last valid entry
+        }
     }
 }
 
-function highlightCurrentPlayer() {
-    const playerBoxes = document.getElementById('playerBoxes');
-    playerBoxes.innerHTML = "";
-    players.forEach((player, index) => {
-        const playerBox = document.createElement('div');
-        playerBox.className = 'player-box';
-        playerBox.textContent = player;
-        if (index === currentPlayerIndex) {
-            playerBox.style.backgroundColor = '#FFD700'; // Highlight current player
-        }
-        playerBoxes.appendChild(playerBox);
-    });
+function endGame(winner) {
+    clearInterval(timer); // Stop the timer
+    const winnerText = document.getElementById('winner');
+    winnerText.innerHTML = `${winner} wins!`; // Display the winner's name
+    winnerText.style.display = 'block'; // Show winner text
+    winnerText.style.animation = 'fadeIn 1s'; // Trigger fade-in animation
+    
+    document.getElementById('restartButton').style.display = 'block'; // Show the restart button
 }
 
 function restartGame() {
     resetGame();
-    categories = []; // Clear categories
-    document.getElementById('categoryList').innerHTML = "";
-    document.getElementById('categorySelection').style.display = 'block';
-    document.getElementById('startGameButton').style.display = 'none';
-    document.getElementById('roundDisplay').style.display = 'none';
+    categories = [];
+    selectedCategory = "";
+    document.getElementById('categoryList').innerHTML = ''; // Clear category list
     document.getElementById('game').style.display = 'none';
-    document.getElementById('initialScreen').style.display = 'flex'; // Show initial screen again
-    showInitialScreen(); // Show the game name again
+    document.getElementById('playerSelection').style.display = 'block';
+    document.getElementById('roundDisplay').style.display = 'none';
+    document.getElementById('status').textContent = ""; // Clear status message
+    document.getElementById('winner').style.display = 'none'; // Hide winner message
 }
 
 function startRecognition() {
-    // Add your speech recognition implementation here
-    // Stop background music when speech recognition starts
+    // Stop background music when starting speech recognition
     backgroundMusic.pause();
 
-    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.lang = 'en-US';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
+    // Check if SpeechRecognition is supported
+    if (!('SpeechRecognition' in window) && !('webkitSpeechRecognition' in window)) {
+        alert("Speech recognition not supported in this browser.");
+        return;
+    }
 
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = 'en-US'; // Set the language for recognition
+    recognition.interimResults = false; // Show final results only
+    recognition.maxAlternatives = 1; // Show one alternative
+
+    // Start recognition
     recognition.start();
 
     recognition.onresult = (event) => {
-        const spokenWord = event.results[0][0].transcript;
-        handleWordInput(spokenWord);
-    };
-
-    recognition.onspeechend = () => {
-        recognition.stop();
-        // Resume background music when speech recognition ends
-        backgroundMusic.play();
+        const transcript = event.results[0][0].transcript.trim();
+        handleWordInput(transcript); // Process the recognized word
+        showTextInput(false); // Hide text input if speech was successful
     };
 
     recognition.onerror = (event) => {
-        console.error('Speech recognition error detected: ' + event.error);
-        // Resume background music on error
-        backgroundMusic.play();
+        console.error('Speech recognition error:', event.error);
+        document.getElementById('status').textContent = "Could not recognize the word. Please enter it manually.";
+        showTextInput(true); // Show text input for manual entry
     };
+
+    recognition.onend = () => {
+        // Automatically restart recognition if the game is still active
+        if (isGameActive) {
+            startRecognition();
+        }
+    };
+}
+
+function showTextInput() {
+    const inputField = document.getElementById('inputFields');
+    inputField.innerHTML = ''; // Clear previous input field
+
+    // Create and display the text input field
+    const textInput = document.createElement('input');
+    textInput.placeholder = "Enter a word...";
+    textInput.onkeypress = (e) => {
+        if (e.key === 'Enter') {
+            handleWordInput(textInput.value);
+            textInput.value = ""; // Clear input after submission
+            inputField.style.display = 'none'; // Hide text input after submission
+        }
+    };
+
+    // Focus the input when clicked
+    textInput.onclick = () => {
+        textInput.focus(); // Focus the input when clicked
+    };
+
+    inputField.appendChild(textInput);
+    inputField.style.display = 'block'; // Show text input
+    textInput.focus(); // Automatically focus on the input field
 }
